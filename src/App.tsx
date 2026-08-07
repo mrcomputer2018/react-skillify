@@ -1,10 +1,16 @@
 import { BrowserRouter } from "react-router";
-import { RootRoute } from "./routes"
+import { AuthProvider } from "@/contexts/authContext";
+import { RootRoute } from "./routes";
+import { ThemeProvider } from "./contexts/theme-provider";
 
 export default function App() {
     return (
         <BrowserRouter>
-            <RootRoute />
+            <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+                <AuthProvider>
+                    <RootRoute />
+                </AuthProvider>
+            </ThemeProvider>
         </BrowserRouter>
     );
 }
