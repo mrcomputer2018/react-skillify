@@ -1,0 +1,54 @@
+/* Hallmark · Garden theme tokens — extracted from src/index.css .theme-garden
+ * Scoped to the login screen (.theme-garden class), not applied app-wide.
+ */
+:root {
+  --color-paper: oklch(97% 0.014 95);
+  --color-paper-2: oklch(94% 0.018 95);
+  --color-ink: oklch(21% 0.016 95);
+  --color-ink-2: oklch(40% 0.014 95);
+  --color-rule: oklch(85% 0.016 95);
+  --color-muted: oklch(54% 0.012 95);
+  --color-accent: oklch(46% 0.13 145);
+  --color-accent-ink: oklch(98% 0.01 145);
+  --color-focus: oklch(56% 0.15 145);
+  --color-error: oklch(52% 0.19 27);
+  --color-error-ink: oklch(98% 0.02 27);
+
+  --color-panel: oklch(28% 0.05 150);
+  --color-panel-2: oklch(35% 0.06 150);
+  --color-panel-ink: oklch(96% 0.02 95);
+  --color-panel-ink-2: oklch(80% 0.02 95 / 0.78);
+  --color-panel-rule: oklch(96% 0.02 95 / 0.16);
+
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-body: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --space-3xs: 0.25rem;
+  --space-2xs: 0.5rem;
+  --space-xs: 0.75rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+  --space-xl: 3rem;
+  --space-2xl: 4.5rem;
+  --space-3xl: 6rem;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-md: 1.125rem;
+  --text-lg: 1.375rem;
+  --text-xl: 1.75rem;
+  --text-2xl: 2.25rem;
+  --text-display: clamp(2.25rem, 4vw + 1rem, 3.75rem);
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --dur-micro: 140ms;
+  --dur-short: 260ms;
+  --dur-long: 500ms;
+
+  --radius-input: 0.5rem;
+  --radius-button: 0.5rem;
+  --radius-panel: 1.25rem;
+}

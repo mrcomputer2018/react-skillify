@@ -3,7 +3,7 @@ import { LoginRightSection } from "@/components/sections/login-right-section";
 
 export function LoginPage() {
   return (
-    <div className="flex min-h-screen w-full">
+    <div className="theme-garden flex min-h-screen w-full flex-col lg:flex-row">
         <LeftSection />
         <LoginRightSection />
     </div>

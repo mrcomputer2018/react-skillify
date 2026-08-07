@@ -3,16 +3,16 @@ import { LoginForm } from "../form/login-form";
 
 export function LoginRightSection() {
     return (
-        <section
-            className={`flex items-center justify-center px-6 py-10 sm:px-10 lg:min-h-screen bg-[#F7F9FB] dark:bg-background w-1/2`}
-        >
-            <div className="w-full max-w-xl space-y-8 rounded-[2rem] border border-gray-300 bg-white p-6 shadow-[0_24px_80px_-48px_rgba(7,18,38,0.6)] sm:p-10 dark:border-border dark:bg-card text-left">
-                <HeaderForm
-                    title="Bem vindo de volta"
-                    description="Insira seu e-mail e senha para entrar!"
-                />
+        <section className="flex w-full flex-col bg-[--color-paper] px-6 py-8 sm:px-10 sm:py-10 lg:min-h-screen lg:w-1/2 lg:px-16 lg:py-12">
+            <div className="flex flex-1 items-center justify-center py-10 sm:py-12">
+                <div className="w-full max-w-sm space-y-8">
+                    <HeaderForm
+                        title="Bem-vindo de volta"
+                        description="Insira seu e-mail e senha para entrar."
+                    />
 
-                <LoginForm />
+                    <LoginForm />
+                </div>
             </div>
         </section>
     );
