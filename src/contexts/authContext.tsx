@@ -11,7 +11,8 @@ import { getData, removeData, storeData } from "@/services/storage";
 const AUTH_STORAGE_KEY = "authUser";
 
 export type AuthUser = {
-    email: string;
+    usuario: string;
+    token: string;
 };
 
 type AuthContextValue = {

@@ -1,35 +1,27 @@
-import loginHero from "@/assets/login-hero.jpg";
+import type { ReactNode } from "react";
 
-export function LeftSection() {
+export function LeftSection({ children }: { children: ReactNode }) {
     return (
-        <section className="relative isolate flex min-h-[45vh] w-full flex-col justify-end overflow-hidden bg-[--color-panel] px-6 py-10 text-[--color-panel-ink] sm:px-10 sm:py-12 lg:min-h-screen lg:w-1/2 lg:px-14 lg:py-16">
-            <img
-                src={loginHero}
-                alt="Mãos entalhando um padrão circular em uma peça de madeira, à luz de uma bancada de trabalho"
-                width={1920}
-                height={1280}
-                fetchPriority="high"
-                className="absolute inset-0 -z-20 h-full w-full object-cover"
-                style={{ objectPosition: "60% 45%" }}
-            />
+        <section className="flex w-full flex-1 items-center justify-center p-6 sm:p-10">
+            <div className="flex w-full max-w-[360px] flex-col gap-6">
+                <div className="flex items-center gap-2.5">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--primary)]">
+                        <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="#ffffff"
+                        >
+                            <polygon points="13,2 3,14 11,14 9,22 21,9 13,9" />
+                        </svg>
+                    </div>
+                    <span className="text-lg font-bold text-[var(--foreground)]">
+                        Skillify
+                    </span>
+                </div>
 
-            <div className="max-w-md space-y-4">
-                <h1
-                    className="text-(length:--text-display) leading-[1.05] font-semibold tracking-[-0.02em] text-gray-50"
-                    style={{
-                        fontFamily: "var(--font-display)",
-                        overflowWrap: "anywhere",
-                        minWidth: 0,
-                    }}
-                >
-                    Desenvolva suas habilidades.
-                </h1>
-                <p className="max-w-sm text-[length:var(--text-md)] leading-relaxed text-gray-300">
-                    Cadastre-se e comece a listar suas habilidades com a
-                    SkillCrud.
-                </p>
+                {children}
             </div>
         </section>
     );
 }
-

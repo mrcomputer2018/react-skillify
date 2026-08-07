@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, Lock, User } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -7,66 +7,41 @@ import { Link, useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuth } from "@/contexts/authContext";
-import { getData, removeData, storeData } from "@/services/storage";
-import { login as loginRequest } from "@/services/skills-api";
-import { LoginSchema, type LoginFormData } from "@/validators/login-schema";
+import { useToast } from "@/contexts/toastContext";
+import { cadastrar } from "@/services/skills-api";
+import {
+    CadastroSchema,
+    type CadastroFormData,
+} from "@/validators/cadastro-schema";
 
-const SAVED_CREDENTIALS_KEY = "skills_saved_credentials";
-
-export function LoginForm() {
+export function RegisterForm() {
     const navigate = useNavigate();
-    const { login } = useAuth();
-    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-    const [loginError, setLoginError] = useState("");
+    const { showToast } = useToast();
+    const [isSenhaVisible, setIsSenhaVisible] = useState(false);
+    const [isConfirmarVisible, setIsConfirmarVisible] = useState(false);
+    const [cadastroError, setCadastroError] = useState("");
     const [loading, setLoading] = useState(false);
 
     const {
         register,
         handleSubmit,
-        watch,
-        reset,
         formState: { errors },
-    } = useForm<LoginFormData>({
-        resolver: zodResolver(LoginSchema),
+    } = useForm<CadastroFormData>({
+        resolver: zodResolver(CadastroSchema),
         mode: "onBlur",
-        defaultValues: { usuario: "", senha: "", gravarSenha: false },
     });
 
-    useEffect(() => {
-        getData(SAVED_CREDENTIALS_KEY).then((saved) => {
-            if (saved) {
-                reset({
-                    usuario: saved.usuario,
-                    senha: saved.senha,
-                    gravarSenha: true,
-                });
-            }
-        });
-    }, [reset]);
-
-    const [usuario, senha] = watch(["usuario", "senha"]);
-    const filled = Boolean(usuario && senha);
-
-    const onSubmit = async (data: LoginFormData) => {
-        setLoginError("");
+    const onSubmit = async (data: CadastroFormData) => {
+        setCadastroError("");
         setLoading(true);
         try {
-            const res = await loginRequest(data.usuario, data.senha);
-
-            if (data.gravarSenha) {
-                await storeData(SAVED_CREDENTIALS_KEY, {
-                    usuario: data.usuario,
-                    senha: data.senha,
-                });
-            } else {
-                await removeData(SAVED_CREDENTIALS_KEY);
-            }
-
-            login({ usuario: res.usuario, token: res.token });
-            navigate("/home");
+            await cadastrar(data.usuario);
+            showToast("success", "Cadastro realizado com sucesso!");
+            navigate("/");
         } catch (e) {
-            setLoginError(e instanceof Error ? e.message : "Erro ao entrar.");
+            setCadastroError(
+                e instanceof Error ? e.message : "Erro ao cadastrar.",
+            );
             setLoading(false);
         }
     };
@@ -92,7 +67,7 @@ export function LoginForm() {
                     <Input
                         id="usuario"
                         type="text"
-                        placeholder="Digite seu nome de usuário"
+                        placeholder="Escolha um nome de usuário"
                         aria-invalid={!!errors.usuario}
                         aria-describedby="usuario-message"
                         className="h-11 rounded-[9px] border-[var(--border)] bg-[var(--input-bg)] pl-10 text-[14px] text-[var(--foreground)] focus-visible:border-[var(--primary)] focus-visible:ring-[var(--primary)]/30"
@@ -123,8 +98,8 @@ export function LoginForm() {
                     />
                     <Input
                         id="senha"
-                        type={isPasswordVisible ? "text" : "password"}
-                        placeholder="Digite sua senha"
+                        type={isSenhaVisible ? "text" : "password"}
+                        placeholder="Crie uma senha"
                         aria-invalid={!!errors.senha}
                         aria-describedby="senha-message"
                         className="h-11 rounded-[9px] border-[var(--border)] bg-[var(--input-bg)] px-10 text-[14px] text-[var(--foreground)] focus-visible:border-[var(--primary)] focus-visible:ring-[var(--primary)]/30"
@@ -133,12 +108,12 @@ export function LoginForm() {
                     <button
                         type="button"
                         aria-label={
-                            isPasswordVisible ? "Ocultar senha" : "Mostrar senha"
+                            isSenhaVisible ? "Ocultar senha" : "Mostrar senha"
                         }
-                        onClick={() => setIsPasswordVisible((v) => !v)}
+                        onClick={() => setIsSenhaVisible((v) => !v)}
                         className="absolute right-3 flex size-4 items-center justify-center text-[var(--muted-foreground)]"
                     >
-                        {isPasswordVisible ? (
+                        {isSenhaVisible ? (
                             <EyeOff className="size-4" />
                         ) : (
                             <Eye className="size-4" />
@@ -155,26 +130,63 @@ export function LoginForm() {
                 )}
             </div>
 
-            <label className="flex cursor-pointer items-center gap-2 select-none">
-                <input
-                    type="checkbox"
-                    className="size-[15px] cursor-pointer accent-[var(--primary)]"
-                    {...register("gravarSenha")}
-                />
-                <span className="text-[13px] text-[var(--muted-foreground)]">
-                    Gravar senha
-                </span>
-            </label>
+            <div className="flex flex-col gap-1.5">
+                <Label
+                    htmlFor="confirmarSenha"
+                    className="text-[13px] text-[var(--muted-foreground)]"
+                >
+                    Confirmar senha
+                </Label>
+                <div className="relative flex items-center">
+                    <Lock
+                        aria-hidden="true"
+                        className="pointer-events-none absolute left-3 size-4 text-[var(--muted-foreground)]"
+                    />
+                    <Input
+                        id="confirmarSenha"
+                        type={isConfirmarVisible ? "text" : "password"}
+                        placeholder="Repita a senha"
+                        aria-invalid={!!errors.confirmarSenha}
+                        aria-describedby="confirmar-message"
+                        className="h-11 rounded-[9px] border-[var(--border)] bg-[var(--input-bg)] px-10 text-[14px] text-[var(--foreground)] focus-visible:border-[var(--primary)] focus-visible:ring-[var(--primary)]/30"
+                        {...register("confirmarSenha")}
+                    />
+                    <button
+                        type="button"
+                        aria-label={
+                            isConfirmarVisible
+                                ? "Ocultar senha"
+                                : "Mostrar senha"
+                        }
+                        onClick={() => setIsConfirmarVisible((v) => !v)}
+                        className="absolute right-3 flex size-4 items-center justify-center text-[var(--muted-foreground)]"
+                    >
+                        {isConfirmarVisible ? (
+                            <EyeOff className="size-4" />
+                        ) : (
+                            <Eye className="size-4" />
+                        )}
+                    </button>
+                </div>
+                {errors.confirmarSenha && (
+                    <p
+                        id="confirmar-message"
+                        className="text-xs text-[var(--destructive)]"
+                    >
+                        {errors.confirmarSenha.message}
+                    </p>
+                )}
+            </div>
 
-            {loginError && (
+            {cadastroError && (
                 <div className="rounded-lg border border-[var(--destructive-border)] bg-[var(--destructive-bg)] px-3 py-2.5 text-[13px] text-[var(--destructive)]">
-                    {loginError}
+                    {cadastroError}
                 </div>
             )}
 
             <Button
                 type="submit"
-                disabled={!filled || loading}
+                disabled={loading}
                 className="mt-1 flex h-[46px] w-full items-center justify-center gap-2 rounded-[9px] bg-[var(--primary)] text-[15px] font-bold text-white hover:bg-[var(--primary-hover)] disabled:opacity-60"
             >
                 {loading && (
@@ -183,16 +195,16 @@ export function LoginForm() {
                         className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
                     />
                 )}
-                Fazer login
+                Salvar
             </Button>
 
             <div className="text-center text-[13px] text-[var(--muted-foreground)]">
-                Não possui conta?{" "}
+                Já tem conta?{" "}
                 <Link
-                    to="/register"
+                    to="/"
                     className="text-[var(--primary-hover)] hover:underline"
                 >
-                    Cadastre-se
+                    Voltar ao login
                 </Link>
             </div>
         </form>

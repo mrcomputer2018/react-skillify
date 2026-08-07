@@ -1,18 +1,17 @@
-import { HeaderForm } from "../form/header-form";
-import { LoginForm } from "../form/login-form";
+import authPanel from "@/assets/auth-panel.jpg";
 
 export function LoginRightSection() {
     return (
-        <section className="flex w-full flex-col bg-[--color-paper] px-6 py-8 sm:px-10 sm:py-10 lg:min-h-screen lg:w-1/2 lg:px-16 lg:py-12">
-            <div className="flex flex-1 items-center justify-center py-10 sm:py-12">
-                <div className="w-full max-w-sm space-y-8">
-                    <HeaderForm
-                        title="Bem-vindo de volta"
-                        description="Insira seu e-mail e senha para entrar."
-                    />
-
-                    <LoginForm />
-                </div>
+        <section className="hidden shrink-0 basis-[55%] p-6 pl-0 lg:flex lg:items-center lg:justify-center">
+            <div className="h-full w-full overflow-hidden rounded-3xl bg-[#d9e4e1]">
+                <img
+                    src={authPanel}
+                    alt="Folhas azuis sobre fundo escuro"
+                    width={1920}
+                    height={1280}
+                    fetchPriority="high"
+                    className="h-full w-full object-cover"
+                />
             </div>
         </section>
     );

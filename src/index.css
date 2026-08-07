@@ -1,151 +1,89 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  --radius: 0.625rem;
+  --radius: 9px;
 
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  /* light mode (default) */
+  --background: #f6f7fa;
+  --foreground: #12141c;
+  --card: #ffffff;
+  --card-foreground: #12141c;
+  --popover: #ffffff;
+  --popover-foreground: #12141c;
+  --primary: #4f7efe;
+  --primary-hover: #3e68e0;
+  --primary-foreground: #ffffff;
+  --secondary: #eef0f4;
+  --secondary-foreground: #12141c;
+  --muted: #eef0f4;
+  --muted-foreground: #676b7a;
+  --accent: #eef0f4;
+  --accent-foreground: #12141c;
+  --destructive: #dc2626;
+  --destructive-bg: rgba(220, 38, 38, 0.08);
+  --destructive-border: rgba(220, 38, 38, 0.35);
+  --border: #e3e5eb;
+  --input: #e3e5eb;
+  --input-bg: #ffffff;
+  --input-bg-nested: #f2f3f7;
+  --ring: #4f7efe;
+
+  /* theme-independent brand accents (same in light and dark) */
+  --success: #4fd1b3;
+  --toast-success-bg: #1f9d7c;
+  --toast-success-border: #17795f;
+  --toast-error-bg: #e4444c;
+  --toast-error-border: #c22e35;
+
+  --skill-1: #4f7efe;
+  --skill-2: #4fbffe;
+  --skill-3: #7a6ef0;
+  --skill-4: #4fd1b3;
+  --skill-5: #f0a64f;
+  --skill-6: #f04f8b;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-}
+  color-scheme: dark;
 
-/*
- * Hallmark · genre: editorial · macrostructure: Split Studio (single-fold auth diptych, H2 knobs: ratio=6/6, right=proof column, divider=hairline)
- * theme: Garden · accent: leaf-green ~3% · nav: N9 Edge-aligned minimal · footer: Ft2 Inline single line (adapted, panel-scoped)
- * enrichment: Tier-A CSS wash + Tier-B hand-built SVG sprig (no real photo; hero.png was 343x361, would blur full-bleed) · studied: no
- * pre-emit critique: P4 H5 E4 S5 R5 V5
- */
-.theme-garden {
-  color: var(--color-ink);
-
-  --color-paper: oklch(97% 0.014 95);
-  --color-paper-2: oklch(94% 0.018 95);
-  --color-ink: oklch(21% 0.016 95);
-  --color-ink-2: oklch(40% 0.014 95);
-  --color-rule: oklch(85% 0.016 95);
-  --color-muted: oklch(54% 0.012 95);
-  --color-accent: oklch(46% 0.13 145);
-  --color-accent-ink: oklch(98% 0.01 145);
-  --color-focus: oklch(56% 0.15 145);
-  --color-error: oklch(52% 0.19 27);
-  --color-error-ink: oklch(98% 0.02 27);
-
-  --color-panel: oklch(28% 0.05 150);
-  --color-panel-2: oklch(35% 0.06 150);
-  --color-panel-ink: oklch(96% 0.02 95);
-  --color-panel-ink-2: oklch(80% 0.02 95 / 0.78);
-  --color-panel-rule: oklch(96% 0.02 95 / 0.16);
-
-  --font-display: "Fraunces", ui-serif, Georgia, serif;
-  --font-body: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
-
-  --space-3xs: 0.25rem;
-  --space-2xs: 0.5rem;
-  --space-xs: 0.75rem;
-  --space-sm: 1rem;
-  --space-md: 1.5rem;
-  --space-lg: 2rem;
-  --space-xl: 3rem;
-  --space-2xl: 4.5rem;
-  --space-3xl: 6rem;
-
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-base: 1rem;
-  --text-md: 1.125rem;
-  --text-lg: 1.375rem;
-  --text-xl: 1.75rem;
-  --text-2xl: 2.25rem;
-  --text-display: clamp(2.25rem, 4vw + 1rem, 3.75rem);
-
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
-  --dur-micro: 140ms;
-  --dur-short: 260ms;
-  --dur-long: 500ms;
-
-  --radius-input: 0.5rem;
-  --radius-button: 0.5rem;
-  --radius-panel: 1.25rem;
-
-  --background: var(--color-paper);
-  --foreground: var(--color-ink);
-  --card: var(--color-paper);
-  --card-foreground: var(--color-ink);
-  --popover: var(--color-paper);
-  --popover-foreground: var(--color-ink);
-  --primary: var(--color-ink);
-  --primary-foreground: var(--color-paper);
-  --secondary: var(--color-paper-2);
-  --secondary-foreground: var(--color-ink);
-  --muted: var(--color-paper-2);
-  --muted-foreground: var(--color-muted);
-  --accent: var(--color-paper-2);
-  --accent-foreground: var(--color-ink);
-  --destructive: var(--color-error);
-  --border: var(--color-rule);
-  --input: var(--color-rule);
-  --ring: var(--color-focus);
-  --radius: var(--radius-input);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .theme-garden {
-    --dur-micro: 1ms;
-    --dur-short: 1ms;
-    --dur-long: 1ms;
-  }
+  --background: #12141c;
+  --foreground: #ffffff;
+  --card: #1e212c;
+  --card-foreground: #ffffff;
+  --popover: #1e212c;
+  --popover-foreground: #ffffff;
+  --primary: #4f7efe;
+  --primary-hover: #5b8def;
+  --primary-foreground: #ffffff;
+  --secondary: #1e212c;
+  --secondary-foreground: #ffffff;
+  --muted: #1e212c;
+  --muted-foreground: #8b8fa3;
+  --accent: #1e212c;
+  --accent-foreground: #ffffff;
+  --destructive: #ff8080;
+  --destructive-bg: rgba(255, 90, 90, 0.1);
+  --destructive-border: rgba(255, 90, 90, 0.3);
+  --border: #2a2d3a;
+  --input: #2a2d3a;
+  --input-bg: #1e212c;
+  --input-bg-nested: #161925;
+  --ring: #4f7efe;
 }
 
 @theme inline {
   --font-heading: var(--font-sans);
-  --font-sans: 'Geist Variable', sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -192,6 +130,34 @@ body {
   margin: 0;
   background: var(--background);
   color: var(--foreground);
+}
+
+input::placeholder {
+  color: var(--muted-foreground);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
 }
 
 @layer base {
