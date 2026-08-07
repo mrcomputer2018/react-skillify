@@ -1,6 +1,6 @@
 import registerImage from "@/app/_assets/auth-side.png";
 
-export function LoginLeftSection() {
+export function LeftSection() {
     return (
         <section className="relative min-h-90 overflow-hidden lg:min-h-screen">
             <img
