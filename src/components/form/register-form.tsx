@@ -37,7 +37,7 @@ export function RegisterForm() {
         try {
             await cadastrar(data.usuario);
             showToast("success", "Cadastro realizado com sucesso!");
-            navigate("/");
+            navigate("/login");
         } catch (e) {
             setCadastroError(
                 e instanceof Error ? e.message : "Erro ao cadastrar.",
@@ -201,7 +201,7 @@ export function RegisterForm() {
             <div className="text-center text-[13px] text-[var(--muted-foreground)]">
                 Já tem conta?{" "}
                 <Link
-                    to="/"
+                    to="/login"
                     className="text-[var(--primary-hover)] hover:underline"
                 >
                     Voltar ao login

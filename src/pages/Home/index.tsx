@@ -44,7 +44,7 @@ export function HomePage() {
 
     const handleLogout = () => {
         logout();
-        navigate("/");
+        navigate("/login");
     };
 
     const changeLevel = async (id: string, delta: number) => {
