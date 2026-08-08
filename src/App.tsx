@@ -8,7 +8,7 @@ import { ThemeProvider } from "./contexts/theme-provider";
 export default function App() {
     return (
         <BrowserRouter>
-            <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+            <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
                 <AuthProvider>
                     <ToastProvider>
                         <RootRoute />
