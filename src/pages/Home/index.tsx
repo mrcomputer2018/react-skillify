@@ -11,13 +11,13 @@ import { useToast } from "@/contexts/toastContext";
 import {
     adicionarSkill,
     atualizarLevelSkill,
-    listarSkillsDisponiveis,
+    atualizarSkill,
     listarSkillsDoUsuario,
     removerSkill,
-    type SkillOption,
     type UserSkill,
 } from "@/services/skills-api";
 import { ModeToggle } from "@/components/mode-toggle";
+import type { SkillFormData } from "@/validators/skill-schema";
 
 export function HomePage() {
     const navigate = useNavigate();
@@ -25,21 +25,18 @@ export function HomePage() {
     const { showToast } = useToast();
 
     const [skills, setSkills] = useState<UserSkill[]>([]);
-    const [availableSkills, setAvailableSkills] = useState<SkillOption[]>([]);
     const [skillsLoading, setSkillsLoading] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);
+    const [editingSkill, setEditingSkill] = useState<UserSkill | null>(null);
     const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(
         null,
     );
 
     useEffect(() => {
-        Promise.all([listarSkillsDisponiveis(), listarSkillsDoUsuario()]).then(
-            ([avail, mine]) => {
-                setAvailableSkills(avail);
-                setSkills(mine);
-                setSkillsLoading(false);
-            },
-        );
+        listarSkillsDoUsuario().then((mine) => {
+            setSkills(mine);
+            setSkillsLoading(false);
+        });
     }, []);
 
     const handleLogout = () => {
@@ -65,16 +62,39 @@ export function HomePage() {
         showToast("success", "Skill removida.");
     };
 
-    const saveModal = async (skillId: string, level: number) => {
-        const list = await adicionarSkill(skillId, level);
-        setSkills(list);
-        setModalOpen(false);
-        showToast("success", "Skill adicionada!");
+    const openAddModal = () => {
+        setEditingSkill(null);
+        setModalOpen(true);
     };
 
-    const modalOptions = availableSkills.filter(
-        (a) => !skills.some((s) => s.id === a.id),
-    );
+    const openEditModal = (skill: UserSkill) => {
+        setEditingSkill(skill);
+        setModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setModalOpen(false);
+        setEditingSkill(null);
+    };
+
+    const saveModal = async (data: SkillFormData) => {
+        const input = {
+            nome: data.nome,
+            descricao: data.descricao,
+            imgUrl: data.imgUrl,
+            level: data.level,
+        };
+        const list = editingSkill
+            ? await atualizarSkill(editingSkill.id, input)
+            : await adicionarSkill(input);
+        setSkills(list);
+        closeModal();
+        showToast(
+            "success",
+            editingSkill ? "Skill atualizada!" : "Skill adicionada!",
+        );
+    };
+
     const showEmptyState = !skillsLoading && skills.length === 0;
     const showSkillsList = !skillsLoading && skills.length > 0;
 
@@ -124,19 +144,17 @@ export function HomePage() {
                     </div>
                     <button
                         type="button"
-                        onClick={() => setModalOpen(true)}
+                        onClick={openAddModal}
                         className="flex shrink-0 items-center gap-2 rounded-[9px] bg-[var(--primary)] px-[18px] py-2.5 text-sm font-bold whitespace-nowrap text-white hover:bg-[var(--primary-hover)]"
                     >
                         <Plus className="size-[15px]" />
-                        Adicionar Skill
+                        Cadastrar Skill
                     </button>
                 </div>
 
                 {skillsLoading && <SkillsSkeleton />}
 
-                {showEmptyState && (
-                    <EmptyState onAdd={() => setModalOpen(true)} />
-                )}
+                {showEmptyState && <EmptyState onAdd={openAddModal} />}
 
                 {showSkillsList && (
                     <div className="flex flex-col gap-3">
@@ -147,6 +165,7 @@ export function HomePage() {
                                 confirming={deleteConfirmId === skill.id}
                                 onIncLevel={() => changeLevel(skill.id, 1)}
                                 onDecLevel={() => changeLevel(skill.id, -1)}
+                                onEdit={() => openEditModal(skill)}
                                 onAskDelete={() =>
                                     setDeleteConfirmId(skill.id)
                                 }
@@ -164,8 +183,8 @@ export function HomePage() {
 
             {modalOpen && (
                 <AddSkillModal
-                    options={modalOptions}
-                    onClose={() => setModalOpen(false)}
+                    skill={editingSkill ?? undefined}
+                    onClose={closeModal}
                     onSave={saveModal}
                 />
             )}

@@ -1,4 +1,4 @@
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { Minus, Pencil, Plus, Trash2 } from "lucide-react";
 
 import { getSkillColor } from "@/lib/skill-color";
 import type { UserSkill } from "@/services/skills-api";
@@ -8,6 +8,7 @@ type SkillRowProps = {
     confirming: boolean;
     onIncLevel: () => void;
     onDecLevel: () => void;
+    onEdit: () => void;
     onAskDelete: () => void;
     onCancelDelete: () => void;
     onConfirmDelete: () => void;
@@ -18,6 +19,7 @@ export function SkillRow({
     confirming,
     onIncLevel,
     onDecLevel,
+    onEdit,
     onAskDelete,
     onCancelDelete,
     onConfirmDelete,
@@ -25,12 +27,20 @@ export function SkillRow({
     return (
         <div className="flex flex-wrap items-center gap-4 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
             <div className="flex min-w-0 flex-1 basis-[200px] items-center gap-4">
-                <div
-                    className="flex size-14 shrink-0 items-center justify-center rounded-[10px] font-mono text-base font-extrabold text-white"
-                    style={{ background: getSkillColor(skill.id) }}
-                >
-                    {skill.nome.charAt(0).toUpperCase()}
-                </div>
+                {skill.imgUrl ? (
+                    <img
+                        src={skill.imgUrl}
+                        alt={skill.nome}
+                        className="size-14 shrink-0 rounded-[10px] object-cover"
+                    />
+                ) : (
+                    <div
+                        className="flex size-14 shrink-0 items-center justify-center rounded-[10px] font-mono text-base font-extrabold text-white"
+                        style={{ background: getSkillColor(skill.id) }}
+                    >
+                        {skill.nome.slice(0, 2).toUpperCase()}
+                    </div>
+                )}
 
                 <div className="min-w-0 flex-1">
                     <div className="text-[15px] font-bold text-[var(--foreground)]">
@@ -85,14 +95,24 @@ export function SkillRow({
                     </button>
                 </div>
             ) : (
-                <button
-                    type="button"
-                    aria-label="Excluir skill"
-                    onClick={onAskDelete}
-                    className="flex size-[34px] shrink-0 items-center justify-center rounded-lg text-[var(--muted-foreground)] hover:bg-[var(--destructive-bg)] hover:text-[var(--destructive)]"
-                >
-                    <Trash2 className="size-4" />
-                </button>
+                <div className="flex shrink-0 items-center gap-1">
+                    <button
+                        type="button"
+                        aria-label="Editar skill"
+                        onClick={onEdit}
+                        className="flex size-[34px] items-center justify-center rounded-lg text-[var(--muted-foreground)] hover:bg-[var(--input-bg-nested)] hover:text-[var(--foreground)]"
+                    >
+                        <Pencil className="size-4" />
+                    </button>
+                    <button
+                        type="button"
+                        aria-label="Excluir skill"
+                        onClick={onAskDelete}
+                        className="flex size-[34px] items-center justify-center rounded-lg text-[var(--muted-foreground)] hover:bg-[var(--destructive-bg)] hover:text-[var(--destructive)]"
+                    >
+                        <Trash2 className="size-4" />
+                    </button>
+                </div>
             )}
         </div>
     );

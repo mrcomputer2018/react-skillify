@@ -1,4 +1,4 @@
-import authPanel from "@/assets/auth-panel.jpg";
+import authPanel from "@/assets/login-banner.jpg";
 
 export function LoginRightSection() {
     return (
