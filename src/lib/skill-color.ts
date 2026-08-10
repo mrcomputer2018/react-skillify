@@ -7,10 +7,11 @@ const PALETTE = [
     "#f04f8b",
 ];
 
-export function getSkillColor(id: string) {
+export function getSkillColor(id: number | string) {
+    const key = String(id);
     let hash = 0;
-    for (let i = 0; i < id.length; i++) {
-        hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
+    for (let i = 0; i < key.length; i++) {
+        hash = (hash * 31 + key.charCodeAt(i)) >>> 0;
     }
     return PALETTE[hash % PALETTE.length];
 }

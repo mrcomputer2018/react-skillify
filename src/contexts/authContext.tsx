@@ -8,9 +8,10 @@ import {
 
 import { getData, removeData, storeData } from "@/services/storage";
 
-const AUTH_STORAGE_KEY = "authUser";
+export const AUTH_STORAGE_KEY = "authUser";
 
 export type AuthUser = {
+    usuarioId: number;
     usuario: string;
     token: string;
 };

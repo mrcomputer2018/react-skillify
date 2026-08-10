@@ -35,7 +35,7 @@ export function RegisterForm() {
         setCadastroError("");
         setLoading(true);
         try {
-            await cadastrar(data.usuario);
+            await cadastrar(data.usuario, data.senha);
             showToast("success", "Cadastro realizado com sucesso!");
             navigate("/login");
         } catch (e) {

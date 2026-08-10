@@ -63,7 +63,11 @@ export function LoginForm() {
                 await removeData(SAVED_CREDENTIALS_KEY);
             }
 
-            login({ usuario: res.usuario, token: res.token });
+            login({
+                usuarioId: res.usuarioId,
+                usuario: res.usuario,
+                token: res.token,
+            });
             navigate("/home");
         } catch (e) {
             setLoginError(e instanceof Error ? e.message : "Erro ao entrar.");

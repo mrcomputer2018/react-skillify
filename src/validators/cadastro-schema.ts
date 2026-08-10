@@ -4,10 +4,12 @@ export const CadastroSchema = z
     .object({
         usuario: z
             .string()
-            .min(1, { message: "Escolha um nome de usuário." }),
+            .min(4, { message: "O usuário deve ter no mínimo 4 caracteres." })
+            .max(50, { message: "O usuário deve ter no máximo 50 caracteres." }),
         senha: z
             .string()
-            .min(4, { message: "A senha deve ter no mínimo 4 caracteres." }),
+            .min(6, { message: "A senha deve ter no mínimo 6 caracteres." })
+            .max(100, { message: "A senha deve ter no máximo 100 caracteres." }),
         confirmarSenha: z
             .string()
             .min(1, { message: "Confirme sua senha." }),

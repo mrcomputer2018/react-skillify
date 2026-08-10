@@ -1,12 +1,22 @@
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import type { UserSkill } from "@/services/skills-api";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import {
+    listarCatalogoSkills,
+    type SkillOption,
+    type UserSkill,
+} from "@/services/skills-api";
 import { SkillSchema, type SkillFormData } from "@/validators/skill-schema";
 
 type AddSkillModalProps = {
@@ -18,22 +28,30 @@ type AddSkillModalProps = {
 export function AddSkillModal({ skill, onClose, onSave }: AddSkillModalProps) {
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
+    const [catalog, setCatalog] = useState<SkillOption[]>([]);
+    const [catalogLoading, setCatalogLoading] = useState(true);
     const isEditing = !!skill;
 
     const {
+        control,
         register,
         handleSubmit,
+        watch,
         formState: { errors },
     } = useForm<SkillFormData>({
         resolver: zodResolver(SkillSchema),
         mode: "onBlur",
         defaultValues: {
-            imgUrl: skill?.imgUrl ?? "",
-            nome: skill?.nome ?? "",
-            descricao: skill?.descricao ?? "",
+            skillId: skill?.skillId ?? 0,
             level: skill?.level ?? 1,
         },
     });
+
+    useEffect(() => {
+        listarCatalogoSkills()
+            .then(setCatalog)
+            .finally(() => setCatalogLoading(false));
+    }, []);
 
     useEffect(() => {
         const onKeyDown = (e: KeyboardEvent) => {
@@ -42,6 +60,13 @@ export function AddSkillModal({ skill, onClose, onSave }: AddSkillModalProps) {
         document.addEventListener("keydown", onKeyDown);
         return () => document.removeEventListener("keydown", onKeyDown);
     }, [onClose]);
+
+    const selectedSkillId = watch("skillId");
+    const selectedSkill =
+        catalog.find((s) => s.id === selectedSkillId) ??
+        (skill
+            ? { id: skill.skillId, nome: skill.nome, descricao: skill.descricao, imgUrl: skill.imgUrl }
+            : undefined);
 
     const onSubmit = async (data: SkillFormData) => {
         setSaving(true);
@@ -74,93 +99,73 @@ export function AddSkillModal({ skill, onClose, onSave }: AddSkillModalProps) {
 
                 <div className="flex flex-col gap-1.5">
                     <Label
-                        htmlFor="modal-imgUrl"
+                        htmlFor="modal-skillId"
                         className="text-[13px] text-[var(--muted-foreground)]"
                     >
-                        URL da imagem (opcional)
+                        Skill
                     </Label>
-                    <Input
-                        id="modal-imgUrl"
-                        type="text"
-                        placeholder="https://..."
-                        aria-invalid={!!errors.imgUrl}
-                        aria-describedby="modal-imgUrl-message"
-                        className="h-11 rounded-[9px] border-[var(--border)] bg-[var(--input-bg-nested)] text-sm text-[var(--foreground)] focus-visible:border-[var(--primary)] focus-visible:ring-[var(--primary)]/30"
-                        {...register("imgUrl")}
+                    <Controller
+                        control={control}
+                        name="skillId"
+                        render={({ field }) => (
+                            <Select
+                                value={field.value ? String(field.value) : ""}
+                                onValueChange={(value) =>
+                                    field.onChange(Number(value))
+                                }
+                                disabled={isEditing || catalogLoading}
+                            >
+                                <SelectTrigger
+                                    id="modal-skillId"
+                                    className="h-11 w-full rounded-[9px] border-[var(--border)] bg-[var(--input-bg-nested)] text-sm text-[var(--foreground)]"
+                                    aria-invalid={!!errors.skillId}
+                                >
+                                    <SelectValue
+                                        placeholder={
+                                            catalogLoading
+                                                ? "Carregando skills..."
+                                                : "Selecione uma skill"
+                                        }
+                                    />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {catalog.map((option) => (
+                                        <SelectItem
+                                            key={option.id}
+                                            value={String(option.id)}
+                                        >
+                                            {option.nome}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
                     />
-                    {errors.imgUrl && (
-                        <p
-                            id="modal-imgUrl-message"
-                            className="text-xs text-[var(--destructive)]"
-                        >
-                            {errors.imgUrl.message}
+                    {errors.skillId && (
+                        <p className="text-xs text-[var(--destructive)]">
+                            {errors.skillId.message}
                         </p>
                     )}
                 </div>
 
-                <div className="flex flex-col gap-1.5">
-                    <Label
-                        htmlFor="modal-nome"
-                        className="text-[13px] text-[var(--muted-foreground)]"
-                    >
-                        Nome
-                    </Label>
-                    <Input
-                        id="modal-nome"
-                        type="text"
-                        placeholder="Nome da skill"
-                        aria-invalid={!!errors.nome}
-                        aria-describedby="modal-nome-message"
-                        className="h-11 rounded-[9px] border-[var(--border)] bg-[var(--input-bg-nested)] text-sm text-[var(--foreground)] focus-visible:border-[var(--primary)] focus-visible:ring-[var(--primary)]/30"
-                        {...register("nome")}
-                    />
-                    {errors.nome && (
-                        <p
-                            id="modal-nome-message"
-                            className="text-xs text-[var(--destructive)]"
-                        >
-                            {errors.nome.message}
-                        </p>
-                    )}
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                    <Label
-                        htmlFor="modal-descricao"
-                        className="text-[13px] text-[var(--muted-foreground)]"
-                    >
-                        Descrição
-                    </Label>
-                    <Textarea
-                        id="modal-descricao"
-                        placeholder="Descreva a skill"
-                        aria-invalid={!!errors.descricao}
-                        aria-describedby="modal-descricao-message"
-                        className="min-h-[80px] rounded-[9px] border-[var(--border)] bg-[var(--input-bg-nested)] text-sm text-[var(--foreground)] focus-visible:border-[var(--primary)] focus-visible:ring-[var(--primary)]/30"
-                        {...register("descricao")}
-                    />
-                    {errors.descricao && (
-                        <p
-                            id="modal-descricao-message"
-                            className="text-xs text-[var(--destructive)]"
-                        >
-                            {errors.descricao.message}
-                        </p>
-                    )}
-                </div>
+                {selectedSkill && (
+                    <p className="text-[13px] text-[var(--muted-foreground)]">
+                        {selectedSkill.descricao}
+                    </p>
+                )}
 
                 <div className="flex flex-col gap-1.5">
                     <Label
                         htmlFor="modal-level"
                         className="text-[13px] text-[var(--muted-foreground)]"
                     >
-                        Level inicial
+                        Level
                     </Label>
                     <Input
                         id="modal-level"
                         type="number"
                         min={1}
-                        max={10}
+                        max={5}
                         aria-invalid={!!errors.level}
                         aria-describedby="modal-level-message"
                         className="h-11 rounded-[9px] border-[var(--border)] bg-[var(--input-bg-nested)] text-sm text-[var(--foreground)] focus-visible:border-[var(--primary)] focus-visible:ring-[var(--primary)]/30"

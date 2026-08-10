@@ -1,104 +1,124 @@
-const DELAY = 700;
-
-function delay(ms?: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms ?? DELAY));
-}
+import { api } from "@/services/api";
 
 export type SkillOption = {
-    id: string;
+    id: number;
     nome: string;
     descricao: string;
     imgUrl?: string;
 };
 
-export type UserSkill = SkillOption & {
-    level: number;
-};
-
-export type NovaSkillInput = {
+export type UserSkill = {
+    id: number;
+    skillId: number;
     nome: string;
     descricao: string;
     imgUrl?: string;
     level: number;
 };
 
-const USER_SKILLS_KEY = "skills_app_user_skills";
+type LoginResponseDTO = {
+    token: string;
+    tipo: string;
+    expiraEm: number;
+    usuarioId: number;
+    login: string;
+};
 
-function loadUserSkills(): UserSkill[] {
-    try {
-        const raw = localStorage.getItem(USER_SKILLS_KEY);
-        return raw ? (JSON.parse(raw) as UserSkill[]) : [];
-    } catch {
-        return [];
-    }
-}
+type CadastroResponseDTO = {
+    id: number;
+    login: string;
+    mensagem: string;
+};
 
-function saveUserSkills(list: UserSkill[]) {
-    localStorage.setItem(USER_SKILLS_KEY, JSON.stringify(list));
+type SkillResponseDTO = {
+    id: number;
+    nome: string;
+    descricao: string;
+    urlImagem?: string;
+};
+
+type UsuarioSkillResponseDTO = {
+    id: number;
+    skillId: number;
+    nomeSkill: string;
+    descricaoSkill: string;
+    urlImagemSkill?: string;
+    level: number;
+};
+
+function toUserSkill(dto: UsuarioSkillResponseDTO): UserSkill {
+    return {
+        id: dto.id,
+        skillId: dto.skillId,
+        nome: dto.nomeSkill,
+        descricao: dto.descricaoSkill,
+        imgUrl: dto.urlImagemSkill || undefined,
+        level: dto.level,
+    };
 }
 
 export async function login(usuario: string, senha: string) {
-    await delay();
-    if (!usuario || !senha) throw new Error("Preencha usuário e senha.");
-    if (senha.length < 4) throw new Error("Usuário ou senha inválidos.");
-    return { token: "mock-token-" + Date.now(), usuario };
-}
-
-export async function cadastrar(usuario: string) {
-    await delay();
-    if (usuario.toLowerCase() === "admin") throw new Error("Usuário já existe.");
-    return { usuario };
-}
-
-export async function listarSkillsDoUsuario(): Promise<UserSkill[]> {
-    await delay(500);
-    return loadUserSkills();
-}
-
-export async function adicionarSkill(input: NovaSkillInput): Promise<UserSkill[]> {
-    await delay();
-    const list = loadUserSkills();
-    const item: UserSkill = {
-        id: crypto.randomUUID(),
-        nome: input.nome,
-        descricao: input.descricao,
-        imgUrl: input.imgUrl || undefined,
-        level: input.level,
+    const { data } = await api.post<LoginResponseDTO>("/api/auth/login", {
+        login: usuario,
+        senha,
+    });
+    return {
+        usuarioId: data.usuarioId,
+        usuario: data.login,
+        token: data.token,
     };
-    list.push(item);
-    saveUserSkills(list);
-    return list;
 }
 
-export async function atualizarLevelSkill(skillId: string, level: number): Promise<UserSkill[]> {
-    await delay(300);
-    const list = loadUserSkills().map((s) =>
-        s.id === skillId ? { ...s, level: Number(level) } : s,
+export async function cadastrar(usuario: string, senha: string) {
+    const { data } = await api.post<CadastroResponseDTO>("/api/auth/cadastro", {
+        login: usuario,
+        senha,
+    });
+    return { usuario: data.login };
+}
+
+export async function listarCatalogoSkills(): Promise<SkillOption[]> {
+    const { data } = await api.get<SkillResponseDTO[]>("/api/skills");
+    return data.map((s) => ({
+        id: s.id,
+        nome: s.nome,
+        descricao: s.descricao,
+        imgUrl: s.urlImagem || undefined,
+    }));
+}
+
+export async function listarSkillsDoUsuario(
+    usuarioId: number,
+): Promise<UserSkill[]> {
+    const { data } = await api.get<UsuarioSkillResponseDTO[]>(
+        `/api/usuario-skills/usuario/${usuarioId}`,
     );
-    saveUserSkills(list);
-    return list;
+    return data.map(toUserSkill);
 }
 
-export async function atualizarSkill(skillId: string, input: NovaSkillInput): Promise<UserSkill[]> {
-    await delay();
-    const list = loadUserSkills().map((s) =>
-        s.id === skillId
-            ? {
-                  ...s,
-                  nome: input.nome,
-                  descricao: input.descricao,
-                  imgUrl: input.imgUrl || undefined,
-                  level: input.level,
-              }
-            : s,
+export async function adicionarSkill(
+    usuarioId: number,
+    skillId: number,
+    level: number,
+): Promise<UserSkill> {
+    const { data } = await api.post<UsuarioSkillResponseDTO>(
+        "/api/usuario-skills",
+        { usuarioId, skillId, level },
     );
-    saveUserSkills(list);
-    return list;
+    return toUserSkill(data);
 }
 
-export async function removerSkill(skillId: string): Promise<UserSkill[]> {
-    await delay(300);
-    const list = loadUserSkills().filter((s) => s.id !== skillId);
-    saveUserSkills(list);
-    return list;
+export async function atualizarLevelSkill(
+    associationId: number,
+    level: number,
+): Promise<UserSkill> {
+    const { data } = await api.put<UsuarioSkillResponseDTO>(
+        `/api/usuario-skills/${associationId}`,
+        { level },
+    );
+    return toUserSkill(data);
+}
+
+export async function removerSkill(associationId: number): Promise<void> {
+    await api.delete(`/api/usuario-skills/${associationId}`);
 }

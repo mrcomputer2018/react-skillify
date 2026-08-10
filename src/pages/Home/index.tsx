@@ -11,7 +11,6 @@ import { useToast } from "@/contexts/toastContext";
 import {
     adicionarSkill,
     atualizarLevelSkill,
-    atualizarSkill,
     listarSkillsDoUsuario,
     removerSkill,
     type UserSkill,
@@ -28,26 +27,27 @@ export function HomePage() {
     const [skillsLoading, setSkillsLoading] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);
     const [editingSkill, setEditingSkill] = useState<UserSkill | null>(null);
-    const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(
+    const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(
         null,
     );
 
     useEffect(() => {
-        listarSkillsDoUsuario().then((mine) => {
+        if (!user) return;
+        listarSkillsDoUsuario(user.usuarioId).then((mine) => {
             setSkills(mine);
             setSkillsLoading(false);
         });
-    }, []);
+    }, [user]);
 
     const handleLogout = () => {
         logout();
         navigate("/login");
     };
 
-    const changeLevel = async (id: string, delta: number) => {
+    const changeLevel = async (id: number, delta: number) => {
         const current = skills.find((s) => s.id === id);
         if (!current) return;
-        const newLevel = Math.max(1, Math.min(10, current.level + delta));
+        const newLevel = Math.max(1, Math.min(5, current.level + delta));
         if (newLevel === current.level) return;
         setSkills((prev) =>
             prev.map((s) => (s.id === id ? { ...s, level: newLevel } : s)),
@@ -55,9 +55,9 @@ export function HomePage() {
         await atualizarLevelSkill(id, newLevel);
     };
 
-    const confirmDelete = async (id: string) => {
-        const list = await removerSkill(id);
-        setSkills(list);
+    const confirmDelete = async (id: number) => {
+        await removerSkill(id);
+        setSkills((prev) => prev.filter((s) => s.id !== id));
         setDeleteConfirmId(null);
         showToast("success", "Skill removida.");
     };
@@ -78,16 +78,23 @@ export function HomePage() {
     };
 
     const saveModal = async (data: SkillFormData) => {
-        const input = {
-            nome: data.nome,
-            descricao: data.descricao,
-            imgUrl: data.imgUrl,
-            level: data.level,
-        };
-        const list = editingSkill
-            ? await atualizarSkill(editingSkill.id, input)
-            : await adicionarSkill(input);
-        setSkills(list);
+        if (!user) return;
+        if (editingSkill) {
+            const updated = await atualizarLevelSkill(
+                editingSkill.id,
+                data.level,
+            );
+            setSkills((prev) =>
+                prev.map((s) => (s.id === updated.id ? updated : s)),
+            );
+        } else {
+            const created = await adicionarSkill(
+                user.usuarioId,
+                data.skillId,
+                data.level,
+            );
+            setSkills((prev) => [...prev, created]);
+        }
         closeModal();
         showToast(
             "success",
