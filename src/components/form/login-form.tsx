@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff, Lock, User } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { Eye, EyeOff, Lock, ShieldAlert, User } from "lucide-react";
+import { Controller, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
 
 import { Button } from "@/components/ui/button";
@@ -21,11 +21,15 @@ export function LoginForm() {
     const [loginError, setLoginError] = useState("");
     const [loading, setLoading] = useState(false);
 
+    const [showSavePasswordWarning, setShowSavePasswordWarning] = useState(false);
+
     const {
         register,
         handleSubmit,
         watch,
         reset,
+        control,
+        setValue,
         formState: { errors },
     } = useForm<LoginFormData>({
         resolver: zodResolver(LoginSchema),
@@ -159,16 +163,31 @@ export function LoginForm() {
                 )}
             </div>
 
-            <label className="flex cursor-pointer items-center gap-2 select-none">
-                <input
-                    type="checkbox"
-                    className="size-[15px] cursor-pointer accent-[var(--primary)]"
-                    {...register("gravarSenha")}
-                />
-                <span className="text-[13px] text-[var(--muted-foreground)]">
-                    Gravar senha
-                </span>
-            </label>
+            <Controller
+                control={control}
+                name="gravarSenha"
+                render={({ field }) => (
+                    <label className="flex cursor-pointer items-center gap-2 select-none">
+                        <input
+                            type="checkbox"
+                            className="size-[15px] cursor-pointer accent-[var(--primary)]"
+                            checked={!!field.value}
+                            onChange={(e) => {
+                                if (e.target.checked) {
+                                    setShowSavePasswordWarning(true);
+                                } else {
+                                    field.onChange(false);
+                                    setValue("usuario", "");
+                                    setValue("senha", "");
+                                }
+                            }}
+                        />
+                        <span className="text-[13px] text-[var(--muted-foreground)]">
+                            Gravar senha
+                        </span>
+                    </label>
+                )}
+            />
 
             {loginError && (
                 <div className="rounded-lg border border-[var(--destructive-border)] bg-[var(--destructive-bg)] px-3 py-2.5 text-[13px] text-[var(--destructive)]">
@@ -199,6 +218,65 @@ export function LoginForm() {
                     Cadastre-se
                 </Link>
             </div>
+
+            {showSavePasswordWarning && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/65"
+                    onClick={() => setShowSavePasswordWarning(false)}
+                >
+                    <div
+                        role="alertdialog"
+                        aria-modal="true"
+                        aria-labelledby="save-password-warning-title"
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex w-full max-w-[400px] flex-col gap-[18px] rounded-2xl border border-[var(--border)] bg-[var(--card)] p-[26px]"
+                    >
+                        <div className="flex items-start gap-3">
+                            <ShieldAlert
+                                aria-hidden="true"
+                                className="mt-0.5 size-5 shrink-0 text-[var(--destructive)]"
+                            />
+                            <div className="flex flex-col gap-1.5">
+                                <span
+                                    id="save-password-warning-title"
+                                    className="text-[15px] font-bold text-[var(--foreground)]"
+                                >
+                                    Gravar senha neste dispositivo?
+                                </span>
+                                <p className="text-[13px] text-[var(--muted-foreground)]">
+                                    Sua senha será salva sem criptografia no
+                                    armazenamento local do navegador
+                                    (localStorage). Qualquer pessoa com acesso
+                                    a este computador ou navegador poderá lê-la.
+                                    Use apenas em dispositivos pessoais e de
+                                    confiança.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-2.5">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setShowSavePasswordWarning(false)}
+                                className="h-11 flex-1 rounded-[9px] border-[var(--border)] bg-transparent text-sm font-semibold text-[var(--foreground)] hover:bg-[var(--input-bg-nested)]"
+                            >
+                                Cancelar
+                            </Button>
+                            <Button
+                                type="button"
+                                onClick={() => {
+                                    setValue("gravarSenha", true);
+                                    setShowSavePasswordWarning(false);
+                                }}
+                                className="h-11 flex-1 rounded-[9px] bg-[var(--primary)] text-sm font-bold text-white hover:bg-[var(--primary-hover)]"
+                            >
+                                Entendi, gravar
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </form>
     );
 }
