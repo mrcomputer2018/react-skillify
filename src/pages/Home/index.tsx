@@ -3,19 +3,24 @@ import { LogOut, Plus } from "lucide-react";
 import { useNavigate } from "react-router";
 
 import { AddSkillModal } from "@/components/skills/add-skill-modal";
+import { CreateSkillModal } from "@/components/skills/create-skill-modal";
 import { EmptyState } from "@/components/skills/empty-state";
 import { SkillRow } from "@/components/skills/skill-row";
 import { SkillsSkeleton } from "@/components/skills/skills-skeleton";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/authContext";
 import { useToast } from "@/contexts/toastContext";
 import {
     adicionarSkill,
     atualizarLevelSkill,
+    atualizarSkill,
+    criarSkill,
     listarSkillsDoUsuario,
     removerSkill,
     type UserSkill,
 } from "@/services/skills-api";
 import { ModeToggle } from "@/components/mode-toggle";
+import type { CreateSkillFormData } from "@/validators/create-skill-schema";
 import type { SkillFormData } from "@/validators/skill-schema";
 
 export function HomePage() {
@@ -26,6 +31,7 @@ export function HomePage() {
     const [skills, setSkills] = useState<UserSkill[]>([]);
     const [skillsLoading, setSkillsLoading] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);
+    const [createModalOpen, setCreateModalOpen] = useState(false);
     const [editingSkill, setEditingSkill] = useState<UserSkill | null>(null);
     const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(
         null,
@@ -63,43 +69,76 @@ export function HomePage() {
     };
 
     const openAddModal = () => {
-        setEditingSkill(null);
-        setModalOpen(true);
-    };
-
-    const openEditModal = (skill: UserSkill) => {
-        setEditingSkill(skill);
         setModalOpen(true);
     };
 
     const closeModal = () => {
         setModalOpen(false);
-        setEditingSkill(null);
     };
 
     const saveModal = async (data: SkillFormData) => {
         if (!user) return;
+        const created = await adicionarSkill(
+            user.usuarioId,
+            data.skillId,
+            data.level,
+        );
+        setSkills((prev) => [...prev, created]);
+        closeModal();
+        showToast("success", "Skill adicionada!");
+    };
+
+    const openEditModal = (skill: UserSkill) => {
+        setEditingSkill(skill);
+        setCreateModalOpen(true);
+    };
+
+    const closeCreateModal = () => {
+        setCreateModalOpen(false);
+        setEditingSkill(null);
+    };
+
+    const saveCreateModal = async (data: CreateSkillFormData) => {
+        if (!user) return;
         if (editingSkill) {
-            const updated = await atualizarLevelSkill(
+            const updatedSkill = await atualizarSkill(
+                editingSkill.skillId,
+                data.nome,
+                data.descricao,
+                data.imgUrl,
+            );
+            const updatedAssoc = await atualizarLevelSkill(
                 editingSkill.id,
                 data.level,
             );
+            const updated: UserSkill = {
+                id: updatedAssoc.id,
+                skillId: updatedSkill.id,
+                nome: updatedSkill.nome,
+                descricao: updatedSkill.descricao,
+                imgUrl: updatedSkill.imgUrl,
+                level: updatedAssoc.level,
+            };
             setSkills((prev) =>
                 prev.map((s) => (s.id === updated.id ? updated : s)),
             );
+            closeCreateModal();
+            showToast("success", "Skill atualizada!");
         } else {
+            const novaSkill = await criarSkill(
+                data.nome,
+                data.descricao,
+                data.imgUrl,
+            );
             const created = await adicionarSkill(
                 user.usuarioId,
-                data.skillId,
+                novaSkill.id,
                 data.level,
             );
             setSkills((prev) => [...prev, created]);
+            closeCreateModal();
+            showToast("success", "Skill criada!");
         }
-        closeModal();
-        showToast(
-            "success",
-            editingSkill ? "Skill atualizada!" : "Skill adicionada!",
-        );
     };
 
     const showEmptyState = !skillsLoading && skills.length === 0;
@@ -149,14 +188,25 @@ export function HomePage() {
                             Gerencie as habilidades do seu perfil
                         </div>
                     </div>
-                    <button
-                        type="button"
-                        onClick={openAddModal}
-                        className="flex shrink-0 items-center gap-2 rounded-[9px] bg-[var(--primary)] px-[18px] py-2.5 text-sm font-bold whitespace-nowrap text-white hover:bg-[var(--primary-hover)]"
-                    >
-                        <Plus className="size-[15px]" />
-                        Adicionar Skill
-                    </button>
+                    <div className="flex shrink-0 items-center gap-2.5">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setCreateModalOpen(true)}
+                            className="h-auto gap-2 rounded-[9px] px-[18px] py-2.5 text-sm font-bold whitespace-nowrap text-[var(--foreground)]"
+                        >
+                            <Plus className="size-3.75" />
+                            Criar Skill
+                        </Button>
+                        <button
+                            type="button"
+                            onClick={openAddModal}
+                            className="flex items-center gap-2 rounded-[9px] bg-[var(--primary)] px-[18px] py-2.5 text-sm font-bold whitespace-nowrap text-white hover:bg-[var(--primary-hover)]"
+                        >
+                            <Plus className="size-[15px]" />
+                            Adicionar Skill
+                        </button>
+                    </div>
                 </div>
 
                 {skillsLoading && <SkillsSkeleton />}
@@ -189,10 +239,14 @@ export function HomePage() {
             </div>
 
             {modalOpen && (
-                <AddSkillModal
+                <AddSkillModal onClose={closeModal} onSave={saveModal} />
+            )}
+
+            {createModalOpen && (
+                <CreateSkillModal
                     skill={editingSkill ?? undefined}
-                    onClose={closeModal}
-                    onSave={saveModal}
+                    onClose={closeCreateModal}
+                    onSave={saveCreateModal}
                 />
             )}
         </div>

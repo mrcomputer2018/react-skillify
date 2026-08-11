@@ -87,6 +87,43 @@ export async function listarCatalogoSkills(): Promise<SkillOption[]> {
     }));
 }
 
+export async function criarSkill(
+    nome: string,
+    descricao: string,
+    imgUrl?: string,
+): Promise<SkillOption> {
+    const { data } = await api.post<SkillResponseDTO>("/api/skills", {
+        nome,
+        descricao,
+        urlImagem: imgUrl || undefined,
+    });
+    return {
+        id: data.id,
+        nome: data.nome,
+        descricao: data.descricao,
+        imgUrl: data.urlImagem || undefined,
+    };
+}
+
+export async function atualizarSkill(
+    skillId: number,
+    nome: string,
+    descricao: string,
+    imgUrl?: string,
+): Promise<SkillOption> {
+    const { data } = await api.put<SkillResponseDTO>(`/api/skills/${skillId}`, {
+        nome,
+        descricao,
+        urlImagem: imgUrl || undefined,
+    });
+    return {
+        id: data.id,
+        nome: data.nome,
+        descricao: data.descricao,
+        imgUrl: data.urlImagem || undefined,
+    };
+}
+
 export async function listarSkillsDoUsuario(
     usuarioId: number,
 ): Promise<UserSkill[]> {

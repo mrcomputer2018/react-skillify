@@ -15,22 +15,19 @@ import {
 import {
     listarCatalogoSkills,
     type SkillOption,
-    type UserSkill,
 } from "@/services/skills-api";
 import { SkillSchema, type SkillFormData } from "@/validators/skill-schema";
 
 type AddSkillModalProps = {
-    skill?: UserSkill;
     onClose: () => void;
     onSave: (data: SkillFormData) => Promise<void>;
 };
 
-export function AddSkillModal({ skill, onClose, onSave }: AddSkillModalProps) {
+export function AddSkillModal({ onClose, onSave }: AddSkillModalProps) {
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
     const [catalog, setCatalog] = useState<SkillOption[]>([]);
     const [catalogLoading, setCatalogLoading] = useState(true);
-    const isEditing = !!skill;
 
     const {
         control,
@@ -42,8 +39,8 @@ export function AddSkillModal({ skill, onClose, onSave }: AddSkillModalProps) {
         resolver: zodResolver(SkillSchema),
         mode: "onBlur",
         defaultValues: {
-            skillId: skill?.skillId ?? 0,
-            level: skill?.level ?? 1,
+            skillId: 0,
+            level: 1,
         },
     });
 
@@ -62,11 +59,7 @@ export function AddSkillModal({ skill, onClose, onSave }: AddSkillModalProps) {
     }, [onClose]);
 
     const selectedSkillId = watch("skillId");
-    const selectedSkill =
-        catalog.find((s) => s.id === selectedSkillId) ??
-        (skill
-            ? { id: skill.skillId, nome: skill.nome, descricao: skill.descricao, imgUrl: skill.imgUrl }
-            : undefined);
+    const selectedSkill = catalog.find((s) => s.id === selectedSkillId);
 
     const onSubmit = async (data: SkillFormData) => {
         setSaving(true);
@@ -87,14 +80,14 @@ export function AddSkillModal({ skill, onClose, onSave }: AddSkillModalProps) {
             <form
                 role="dialog"
                 aria-modal="true"
-                aria-label={isEditing ? "Editar Skill" : "Cadastrar Skill"}
+                aria-label="Cadastrar Skill"
                 onClick={(e) => e.stopPropagation()}
                 onSubmit={handleSubmit(onSubmit)}
                 noValidate
                 className="flex w-full max-w-[400px] flex-col gap-[18px] rounded-2xl border border-[var(--border)] bg-[var(--card)] p-[26px]"
             >
                 <div className="text-[17px] font-bold text-[var(--foreground)]">
-                    {isEditing ? "Editar Skill" : "Cadastrar Skill"}
+                    Cadastrar Skill
                 </div>
 
                 <div className="flex flex-col gap-1.5">
@@ -113,7 +106,7 @@ export function AddSkillModal({ skill, onClose, onSave }: AddSkillModalProps) {
                                 onValueChange={(value) =>
                                     field.onChange(Number(value))
                                 }
-                                disabled={isEditing || catalogLoading}
+                                disabled={catalogLoading}
                             >
                                 <SelectTrigger
                                     id="modal-skillId"
