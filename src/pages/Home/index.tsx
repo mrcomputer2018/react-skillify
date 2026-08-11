@@ -155,7 +155,7 @@ export function HomePage() {
                         className="flex shrink-0 items-center gap-2 rounded-[9px] bg-[var(--primary)] px-[18px] py-2.5 text-sm font-bold whitespace-nowrap text-white hover:bg-[var(--primary-hover)]"
                     >
                         <Plus className="size-[15px]" />
-                        Cadastrar Skill
+                        Adicionar Skill
                     </button>
                 </div>
 
