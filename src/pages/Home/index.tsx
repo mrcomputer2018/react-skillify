@@ -16,6 +16,7 @@ import {
     atualizarSkill,
     criarSkill,
     deletarSkill,
+    listarCatalogoSkills,
     listarSkillsDoUsuario,
     type UserSkill,
 } from "@/services/skills-api";
@@ -39,16 +40,41 @@ export function HomePage() {
 
     useEffect(() => {
         if (!user) return;
-        listarSkillsDoUsuario()
-            .then((mine) => {
+
+        const carregarSkills = async () => {
+            try {
+                let mine = await listarSkillsDoUsuario();
+
+                if (user.role === "ADMIN") {
+                    const catalogo = await listarCatalogoSkills();
+                    const idsAssociados = new Set(
+                        mine.map((s) => s.skillId),
+                    );
+                    const faltantes = catalogo.filter(
+                        (s) => !idsAssociados.has(s.id),
+                    );
+                    if (faltantes.length > 0) {
+                        const novas = await Promise.all(
+                            faltantes.map((s) => adicionarSkill(s.id, 1)),
+                        );
+                        mine = [...mine, ...novas];
+                    }
+                }
+
                 setSkills(mine);
-            })
-            .catch((error: Error) => {
-                showToast("error", error.message);
-            })
-            .finally(() => {
+            } catch (error) {
+                showToast(
+                    "error",
+                    error instanceof Error
+                        ? error.message
+                        : "Erro ao carregar skills.",
+                );
+            } finally {
                 setSkillsLoading(false);
-            });
+            }
+        };
+
+        carregarSkills();
     }, [user, showToast]);
 
     const handleLogout = () => {
