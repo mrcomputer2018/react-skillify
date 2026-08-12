@@ -71,6 +71,7 @@ export function LoginForm() {
                 usuarioId: res.usuarioId,
                 usuario: res.usuario,
                 token: res.token,
+                role: res.role,
             });
             navigate("/home");
         } catch (e) {

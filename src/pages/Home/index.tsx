@@ -15,8 +15,8 @@ import {
     atualizarLevelSkill,
     atualizarSkill,
     criarSkill,
+    deletarSkill,
     listarSkillsDoUsuario,
-    removerSkill,
     type UserSkill,
 } from "@/services/skills-api";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -39,11 +39,17 @@ export function HomePage() {
 
     useEffect(() => {
         if (!user) return;
-        listarSkillsDoUsuario(user.usuarioId).then((mine) => {
-            setSkills(mine);
-            setSkillsLoading(false);
-        });
-    }, [user]);
+        listarSkillsDoUsuario()
+            .then((mine) => {
+                setSkills(mine);
+            })
+            .catch((error: Error) => {
+                showToast("error", error.message);
+            })
+            .finally(() => {
+                setSkillsLoading(false);
+            });
+    }, [user, showToast]);
 
     const handleLogout = () => {
         logout();
@@ -58,11 +64,13 @@ export function HomePage() {
         setSkills((prev) =>
             prev.map((s) => (s.id === id ? { ...s, level: newLevel } : s)),
         );
-        await atualizarLevelSkill(id, newLevel);
+        await atualizarLevelSkill(current.skillId, newLevel);
     };
 
     const confirmDelete = async (id: number) => {
-        await removerSkill(id);
+        const current = skills.find((s) => s.id === id);
+        if (!current) return;
+        await deletarSkill(current.skillId);
         setSkills((prev) => prev.filter((s) => s.id !== id));
         setDeleteConfirmId(null);
         showToast("success", "Skill removida.");
@@ -78,11 +86,7 @@ export function HomePage() {
 
     const saveModal = async (data: SkillFormData) => {
         if (!user) return;
-        const created = await adicionarSkill(
-            user.usuarioId,
-            data.skillId,
-            data.level,
-        );
+        const created = await adicionarSkill(data.skillId, data.level);
         setSkills((prev) => [...prev, created]);
         closeModal();
         showToast("success", "Skill adicionada!");
@@ -108,7 +112,7 @@ export function HomePage() {
                 data.imgUrl,
             );
             const updatedAssoc = await atualizarLevelSkill(
-                editingSkill.id,
+                editingSkill.skillId,
                 data.level,
             );
             const updated: UserSkill = {
@@ -130,11 +134,7 @@ export function HomePage() {
                 data.descricao,
                 data.imgUrl,
             );
-            const created = await adicionarSkill(
-                user.usuarioId,
-                novaSkill.id,
-                data.level,
-            );
+            const created = await adicionarSkill(novaSkill.id, data.level);
             setSkills((prev) => [...prev, created]);
             closeCreateModal();
             showToast("success", "Skill criada!");
@@ -189,15 +189,17 @@ export function HomePage() {
                         </div>
                     </div>
                     <div className="flex shrink-0 items-center gap-2.5">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => setCreateModalOpen(true)}
-                            className="h-auto gap-2 rounded-[9px] px-[18px] py-2.5 text-sm font-bold whitespace-nowrap text-[var(--foreground)]"
-                        >
-                            <Plus className="size-3.75" />
-                            Criar Skill
-                        </Button>
+                        {user?.role === "ADMIN" && (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setCreateModalOpen(true)}
+                                className="h-auto gap-2 rounded-[9px] px-[18px] py-2.5 text-sm font-bold whitespace-nowrap text-[var(--foreground)]"
+                            >
+                                <Plus className="size-3.75" />
+                                Criar Skill
+                            </Button>
+                        )}
                         <button
                             type="button"
                             onClick={openAddModal}

@@ -16,12 +16,15 @@ export type UserSkill = {
     level: number;
 };
 
+export type UserRole = "ADMIN" | "USER";
+
 type LoginResponseDTO = {
     token: string;
     tipo: string;
     expiraEm: number;
     usuarioId: number;
     login: string;
+    role: UserRole;
 };
 
 type CadastroResponseDTO = {
@@ -66,6 +69,7 @@ export async function login(usuario: string, senha: string) {
         usuarioId: data.usuarioId,
         usuario: data.login,
         token: data.token,
+        role: data.role,
     };
 }
 
@@ -124,38 +128,35 @@ export async function atualizarSkill(
     };
 }
 
-export async function listarSkillsDoUsuario(
-    usuarioId: number,
-): Promise<UserSkill[]> {
+export async function listarSkillsDoUsuario(): Promise<UserSkill[]> {
     const { data } = await api.get<UsuarioSkillResponseDTO[]>(
-        `/api/usuario-skills/usuario/${usuarioId}`,
+        "/api/usuario-skills",
     );
     return data.map(toUserSkill);
 }
 
 export async function adicionarSkill(
-    usuarioId: number,
     skillId: number,
     level: number,
 ): Promise<UserSkill> {
     const { data } = await api.post<UsuarioSkillResponseDTO>(
         "/api/usuario-skills",
-        { usuarioId, skillId, level },
+        { skillId, level },
     );
     return toUserSkill(data);
 }
 
 export async function atualizarLevelSkill(
-    associationId: number,
+    skillId: number,
     level: number,
 ): Promise<UserSkill> {
     const { data } = await api.put<UsuarioSkillResponseDTO>(
-        `/api/usuario-skills/${associationId}`,
+        `/api/usuario-skills/${skillId}`,
         { level },
     );
     return toUserSkill(data);
 }
 
-export async function removerSkill(associationId: number): Promise<void> {
-    await api.delete(`/api/usuario-skills/${associationId}`);
+export async function deletarSkill(skillId: number): Promise<void> {
+    await api.delete(`/api/skills/${skillId}`);
 }

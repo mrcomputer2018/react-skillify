@@ -7,6 +7,7 @@ import {
 } from "react";
 
 import { getData, removeData, storeData } from "@/services/storage";
+import type { UserRole } from "@/services/skills-api";
 
 export const AUTH_STORAGE_KEY = "authUser";
 
@@ -14,6 +15,7 @@ export type AuthUser = {
     usuarioId: number;
     usuario: string;
     token: string;
+    role: UserRole;
 };
 
 type AuthContextValue = {

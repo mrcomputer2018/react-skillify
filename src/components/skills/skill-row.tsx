@@ -2,6 +2,7 @@ import { Minus, Pencil, Plus, Trash2 } from "lucide-react";
 
 import { getSkillColor } from "@/lib/skill-color";
 import type { UserSkill } from "@/services/skills-api";
+import { useAuth } from "@/contexts/authContext";
 
 type SkillRowProps = {
     skill: UserSkill;
@@ -24,6 +25,8 @@ export function SkillRow({
     onCancelDelete,
     onConfirmDelete,
 }: SkillRowProps) {
+    const { user } = useAuth();
+
     return (
         <div className="flex flex-wrap items-center gap-4 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
             <div className="flex min-w-0 flex-1 basis-[200px] items-center gap-4">
@@ -96,14 +99,16 @@ export function SkillRow({
                 </div>
             ) : (
                 <div className="flex shrink-0 items-center gap-1">
-                    <button
-                        type="button"
-                        aria-label="Editar skill"
-                        onClick={onEdit}
-                        className="flex size-[34px] items-center justify-center rounded-lg text-[var(--muted-foreground)] hover:bg-[var(--input-bg-nested)] hover:text-[var(--foreground)]"
-                    >
-                        <Pencil className="size-4" />
-                    </button>
+                    {user?.role === "ADMIN" && (
+                        <button
+                            type="button"
+                            aria-label="Editar skill"
+                            onClick={onEdit}
+                            className="flex size-[34px] items-center justify-center rounded-lg text-[var(--muted-foreground)] hover:bg-[var(--input-bg-nested)] hover:text-[var(--foreground)]"
+                        >
+                            <Pencil className="size-4" />
+                        </button>
+                    )}
                     <button
                         type="button"
                         aria-label="Excluir skill"
