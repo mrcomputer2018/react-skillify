@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', 'coverage']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
@@ -23,6 +23,14 @@ export default defineConfig([
     files: ['src/components/ui/**/*.{ts,tsx}', 'src/contexts/**/*.{ts,tsx}'],
     rules: {
       'react-refresh/only-export-components': 'off',
+    },
+  },
+  {
+    files: ['src/test/e2e/**/*.ts'],
+    rules: {
+      // Cypress's documented pattern for typing custom commands augments
+      // the global `Cypress` namespace.
+      '@typescript-eslint/no-namespace': 'off',
     },
   },
 ])
