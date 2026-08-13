@@ -32,7 +32,9 @@ describe("AddSkillModal", () => {
         await user.click(
             await screen.findByRole("combobox", { name: "Skill" }),
         );
-        await user.click(await screen.findByText("React"));
+        await user.click(
+            await screen.findByRole("option", { name: "React" }),
+        );
 
         expect(
             await screen.findByText("Biblioteca de UI"),
@@ -73,7 +75,9 @@ describe("AddSkillModal", () => {
         await user.click(
             await screen.findByRole("combobox", { name: "Skill" }),
         );
-        await user.click(await screen.findByText("React"));
+        await user.click(
+            await screen.findByRole("option", { name: "React" }),
+        );
         await user.click(screen.getByRole("button", { name: /salvar/i }));
 
         expect(

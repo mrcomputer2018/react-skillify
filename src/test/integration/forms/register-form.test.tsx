@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router";
 
 import { RegisterForm } from "@/components/form/register-form";
+import { Toast } from "@/components/ui/toast";
 import { ToastProvider } from "@/contexts/toastContext";
 import { cadastrar } from "@/services/skills-api";
 
@@ -23,6 +24,7 @@ function renderRegisterForm() {
         <MemoryRouter>
             <ToastProvider>
                 <RegisterForm />
+                <Toast />
             </ToastProvider>
         </MemoryRouter>,
     );
