@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { flushSync } from "react-dom";
 import { LogOut, Plus } from "lucide-react";
 import { useNavigate } from "react-router";
 
@@ -78,7 +79,12 @@ export function HomePage() {
     }, [user, showToast]);
 
     const handleLogout = () => {
-        logout();
+        // Commit the auth flip before navigating so RootRoute has already
+        // switched to PublicRoutes; otherwise navigate("/login") can race
+        // with PrivateRoutes' own wildcard redirect and land on "/".
+        flushSync(() => {
+            logout();
+        });
         navigate("/login");
     };
 
